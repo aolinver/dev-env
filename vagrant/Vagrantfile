@@ -1,0 +1,68 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# 所有的 Vagrant box 配置文件，"2" 代表版本号，可兼容老版本，一般不做修改
+Vagrant.configure("2") do |config|
+
+  # 配置主体，所有配置参数可在 https://www.vagrantup.com/docs/vagrantfile 上查看
+
+  # 虚拟机基础 box ，可在 https://app.vagrantup.com/boxes/search 或 http://www.vagrantbox.es 下载
+  config.vm.box = "ubuntu/xenial64"
+
+  # 禁止 box 自动检查更新，禁止后可以使用 `vagrant box outdated`，但是不建议，一般不在已配置好的 box 上更新
+  # config.vm.box_check_update = false
+
+  # 虚拟主机名称，用于 Vagrant 管理虚拟机名称
+  config.vm.hostname="ubuntu"
+
+  # 将虚拟机内的端口映射到宿主机
+  # 注意： 开放的端口具有公共权限，宿主机局域网内可访问
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # 创建端口映射将虚拟机端口映射到宿主机并设置为仅可在 127.0.0.1 下而禁止宿主机局域网访问权限
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  # 创建私有网络指定 IP 并只允许宿主机访问
+  # config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "private_network", ip: "192.168.33.10"
+
+  # 创建公共网络使虚拟机在宿主机局域网内获得 IP，桥接网络可使虚拟机在局域网内如同其他物理机一样，有独立的 IP:PROT可使用
+  # 注意：局域网 DHCP 下每次获取的 IP 可能不同，不利于虚拟机迁移，一般团队打包 box 会包含此配置文件，不建议此配置
+  # config.vm.network "public_network"
+
+  # 虚拟机共享文件夹设置，第一个参数为宿主机目录，第二个参数为虚拟机共享目录
+  # 第三个非必须参数为同步文件夹方式（配置见 https://www.vagrantup.com/docs/synced-folders/basic_usage.html）
+  # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.synced_folder "../docker", "/home/vagrant/docker"
+  config.vm.synced_folder "../code", "/home/vagrant/code"
+
+  # VirtualBox 下虚拟机的相关配置 详细配置见：https://www.vagrantup.com/docs/virtualbox/configuration.html
+  config.vm.provider "virtualbox" do |vb|
+    # 虚拟机名称
+    vb.name = "ubuntu"
+
+    # 是否在启动虚拟机时显示 GUI 界面（VirtualBox界面）
+    #一般为false，可以通过 vagrant ssh 命令或第三方 shell 客户端连接获得更好体验
+    #可在虚拟机启动失败时启动 GUI 界面来排错
+    vb.gui = false
+
+    # CPU 核数
+    vb.cpus = 2
+
+    # 内存大小
+    vb.memory = "2048"
+  end
+
+  # 使用shell脚本启用配置，在虚拟机启动后执行的脚本
+  # 例如将 MySQL 数据目录挂载在宿主机的时候，vagrant up 启动时目录未挂载导致 MySQL 开机启动失败，可在此次执行 MySQL 启动实现开机启动
+  # 还可以使用其他配置程序，如 Puppet，Chef，Ansible，Salt 和 Docker
+  # 有关其特定语法和用法的更多信息，请参阅文档。
+  # 虚拟机创建时启动的脚本，创建执行 vagrant up 时带上--provision
+  # 安装 docker 和 docker-compose
+  # config.vm.provision "shell", inline: <<-SHELL
+    # curl -fsSL https://get.docker.com | sh
+    # sudo usermod -aG docker vagrant
+    # sudo curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    # sudo chmod +x /usr/local/bin/docker-compose
+  # SHELL
+end
